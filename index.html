@@ -125,10 +125,10 @@
       right: document.getElementById("right"),
     };
 
-    const gridSize = 20;
-    let snake = [{ x: 100, y: 100 }];
+    const gridSize = 30; // Changed size of the snake
+    let snake = [{ x: 150, y: 150 }];
     let direction = { x: gridSize, y: 0 };
-    let food = { x: 200, y: 200 };
+    let food = { x: 180, y: 180 }; // Changed size of the food
     let score = 0;
     let totalEarnings = 0;
     let isPaused = false;
@@ -203,7 +203,7 @@
     }
 
     function restartGame() {
-      snake = [{ x: 100, y: 100 }];
+      snake = [{ x: 150, y: 150 }];
       direction = { x: gridSize, y: 0 };
       score = 0;
       isPaused = false;
