@@ -3,158 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Game</title>
+  <title>Sign-Up / Sign-In</title>
   <style>
     body {
-      margin: 0;
+      background-color: blue;
+      color: white;
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: #282c34;
-      color: white;
+      margin: 0;
     }
-    .window {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 400px;
-      background: blue;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-    }
-    .window.visible {
-      display: block;
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
     }
     .button {
-      width: 150px;
-      height: 40px;
-      background: white;
-      color: blue;
-      font-size: 16px;
-      font-weight: bold;
+      background-color: white;
+      color: black;
       border: none;
-      margin: 10px 0;
+      padding: 15px 30px;
+      font-size: 18px;
       cursor: pointer;
-    }
-    .button:hover {
-      background: lightblue;
-    }
-    .form-input {
-      width: 100%;
-      height: 30px;
       margin: 10px 0;
-      border: 1px solid #ccc;
       border-radius: 5px;
-      padding: 5px;
     }
-    .submit-btn {
-      width: 100%;
-      height: 40px;
-      background: #444;
-      color: white;
-      font-size: 16px;
+    .button:active {
       font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-    .submit-btn:hover {
-      background: #666;
-    }
-    #main-menu {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
   </style>
 </head>
 <body>
-  <!-- Main Menu -->
-  <div id="main-menu">
-    <h1>Snake Game</h1>
-    <button class="button" id="sign-up-btn">Sign Up</button>
-    <button class="button" id="sign-in-btn">Sign In</button>
-  </div>
+  <h1>Welcome</h1>
+  <button class="button" id="sign-up">Sign Up</button>
+  <button class="button" id="sign-in">Sign In</button>
 
-  <!-- Sign Up Window -->
-  <div class="window" id="sign-up-window">
-    <h2 style="color: black;">Sign Up</h2>
-    <label for="sign-up-name" style="color: black;">Name</label>
-    <input type="text" id="sign-up-name" class="form-input" placeholder="Enter your name">
-    <label for="sign-up-email" style="color: black;">Email</label>
-    <input type="email" id="sign-up-email" class="form-input" placeholder="Enter your email">
-    <label for="sign-up-password" style="color: black;">Password</label>
-    <input type="password" id="sign-up-password" class="form-input" placeholder="Enter your password">
-    <button class="submit-btn" id="sign-up-submit">Submit</button>
-  </div>
-
-  <!-- Sign In Window -->
-  <div class="window" id="sign-in-window">
-    <h2 style="color: black;">Sign In</h2>
-    <label for="sign-in-email" style="color: black;">Email</label>
-    <input type="email" id="sign-in-email" class="form-input" placeholder="Enter your email">
-    <label for="sign-in-password" style="color: black;">Password</label>
-    <input type="password" id="sign-in-password" class="form-input" placeholder="Enter your password">
-    <button class="submit-btn" id="sign-in-submit">Submit</button>
-  </div>
-
-  <!-- JavaScript -->
   <script>
-    const signUpBtn = document.getElementById("sign-up-btn");
-    const signInBtn = document.getElementById("sign-in-btn");
-    const signUpWindow = document.getElementById("sign-up-window");
-    const signInWindow = document.getElementById("sign-in-window");
-    const mainMenu = document.getElementById("main-menu");
-
-    const signUpSubmit = document.getElementById("sign-up-submit");
-    const signInSubmit = document.getElementById("sign-in-submit");
-
-    // Open Sign-Up Window
-    signUpBtn.addEventListener("click", () => {
-      mainMenu.style.display = "none";
-      signUpWindow.classList.add("visible");
+    document.getElementById("sign-up").addEventListener("click", () => {
+      window.location.href = "sign-up.html";
     });
-
-    // Open Sign-In Window
-    signInBtn.addEventListener("click", () => {
-      mainMenu.style.display = "none";
-      signInWindow.classList.add("visible");
-    });
-
-    // Handle Sign-Up Submit
-    signUpSubmit.addEventListener("click", () => {
-      const name = document.getElementById("sign-up-name").value;
-      const email = document.getElementById("sign-up-email").value;
-      const password = document.getElementById("sign-up-password").value;
-
-      if (name && email && password) {
-        // Send data to Google Sheet
-        alert("Sign-Up Successful! Redirecting to the game...");
-        location.href = "game.html";
-      } else {
-        alert("Please fill all fields.");
-      }
-    });
-
-    // Handle Sign-In Submit
-    signInSubmit.addEventListener("click", () => {
-      const email = document.getElementById("sign-in-email").value;
-      const password = document.getElementById("sign-in-password").value;
-
-      if (email && password) {
-        // Check data with Google Sheet
-        alert("Sign-In Successful! Redirecting to the game...");
-        location.href = "game.html";
-      } else {
-        alert("Invalid email or password.");
-      }
+    document.getElementById("sign-in").addEventListener("click", () => {
+      window.location.href = "sign-in.html";
     });
   </script>
 </body>
