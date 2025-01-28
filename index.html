@@ -112,7 +112,6 @@
       right: document.getElementById("right"),
     };
 
-    // Three.js setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas });
@@ -126,10 +125,9 @@
     let isGameOver = false;
     let score = 0;
     let totalEarnings = 0;
-    let speed = 300; // Snake movement speed in milliseconds
+    let speed = 300;
     let lastUpdateTime = 0;
 
-    // Snake body
     const snakeMaterial = new THREE.MeshBasicMaterial({ color: "green" });
     function addSnakeSegment(position) {
       const segment = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), snakeMaterial);
@@ -138,10 +136,8 @@
       snakeSegments.push(segment);
     }
 
-    // Initial snake
     addSnakeSegment(snakePositions[0]);
 
-    // Food
     const foodMaterial = new THREE.MeshBasicMaterial({ color: "red" });
     const foodMesh = new THREE.Mesh(new THREE.SphereGeometry(0.5), foodMaterial);
     foodMesh.position.set(foodPosition.x, 0.5, foodPosition.z);
@@ -163,17 +159,16 @@
       const newHead = { x: head.x + direction.x, z: head.z + direction.z };
       snakePositions.unshift(newHead);
 
-      // If snake eats food, increase the score and snake size but don't end the game
       if (newHead.x === foodPosition.x && newHead.z === foodPosition.z) {
         score++;
         totalEarnings += 5;
         scoreElement.textContent = `Score: ${score}`;
         earningsElement.textContent = `Earnings: ${totalEarnings}$$`;
-        snakePositions.push(snakePositions[snakePositions.length - 1]);
-        addSnakeSegment(snakePositions[snakePositions.length - 1]);
+        addSnakeSegment(newHead);
         placeFood();
       } else {
-        snakePositions.pop(); // Remove the tail if the snake doesn't eat food
+        snakePositions.pop();
+        scene.remove(snakeSegments.pop());
       }
 
       snakeSegments.forEach((segment, index) => {
@@ -181,30 +176,24 @@
         segment.position.set(pos.x, 0.5, pos.z);
       });
 
-      // Check wall collision
-      if (Math.abs(newHead.x) > gridSize / 2 || Math.abs(newHead.z) > gridSize / 2) {
+      if (Math.abs(newHead.x) > gridSize / 2 || Math.abs(newHead.z) > gridSize / 2 || snakePositions.slice(1).some(pos => pos.x === newHead.x && pos.z === newHead.z)) {
         endGame();
         return;
-      }
-
-      // Check self-collision
-      for (let i = 1; i < snakePositions.length; i++) {
-        if (newHead.x === snakePositions[i].x && newHead.z === snakePositions[i].z) {
-          endGame();
-          return;
-        }
       }
     }
 
     function endGame() {
-      isGameOver = true;
-      gameOverScreen.style.display = "flex";
+      if (!isGameOver) {
+        isGameOver = true;
+        gameOverScreen.style.display = "flex";
+      }
     }
 
     function restartGame() {
       snakePositions.length = 1;
-      snakeSegments.forEach(segment => scene.remove(segment));
-      snakeSegments.length = 0;
+      while (snakeSegments.length > 0) {
+        scene.remove(snakeSegments.pop());
+      }
       addSnakeSegment(snakePositions[0]);
       direction = { x: 1, z: 0 };
       score = 0;
@@ -215,10 +204,18 @@
       placeFood();
     }
 
-    buttons.up.addEventListener("click", () => direction = { x: 0, z: -1 });
-    buttons.down.addEventListener("click", () => direction = { x: 0, z: 1 });
-    buttons.left.addEventListener("click", () => direction = { x: -1, z: 0 });
-    buttons.right.addEventListener("click", () => direction = { x: 1, z: 0 });
+    buttons.up.addEventListener("click", () => {
+      if (direction.z === 0) direction = { x: 0, z: -1 };
+    });
+    buttons.down.addEventListener("click", () => {
+      if (direction.z === 0) direction = { x: 0, z: 1 };
+    });
+    buttons.left.addEventListener("click", () => {
+      if (direction.x === 0) direction = { x: -1, z: 0 };
+    });
+    buttons.right.addEventListener("click", () => {
+      if (direction.x === 0) direction = { x: 1, z: 0 };
+    });
     restartBtn.addEventListener("click", restartGame);
 
     function animate(currentTime) {
