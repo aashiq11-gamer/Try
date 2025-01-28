@@ -16,236 +16,146 @@
       background: #282c34;
       color: white;
     }
-    canvas {
-      border: 3px solid #fff;
-      display: block;
-      background: #111;
-    }
-    .controls {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      justify-items: center;
-    }
-    .button {
-      width: 50px;
-      height: 50px;
-      background: #444;
-      border: 2px solid #fff;
-      border-radius: 5px;
-      color: white;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-    }
-    .button:active {
-      background: #666;
-    }
-    #pause-btn, #withdraw-btn, #start-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #444;
-      border: 2px solid #fff;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    #pause-btn:active, #withdraw-btn:active, #start-btn:active {
-      background: #666;
-    }
-    #game-over {
+    .window {
       display: none;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      text-align: center;
-      background: rgba(0, 0, 0, 0.8);
+      width: 400px;
+      background: blue;
       padding: 20px;
       border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     }
-    #game-over button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: #444;
-      border: 2px solid #fff;
-      color: white;
-      font-size: 18px;
+    .window.visible {
+      display: block;
+    }
+    .button {
+      width: 150px;
+      height: 40px;
+      background: white;
+      color: blue;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      margin: 10px 0;
       cursor: pointer;
     }
-    #game-over button:active {
+    .button:hover {
+      background: lightblue;
+    }
+    .form-input {
+      width: 100%;
+      height: 30px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+    .submit-btn {
+      width: 100%;
+      height: 40px;
+      background: #444;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
       background: #666;
+    }
+    #main-menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
   </style>
 </head>
 <body>
-  <canvas id="game" width="300" height="300"></canvas>
-  <div id="score">Score: 0</div>
-  <div id="earnings">Earnings: 0$$</div>
-  <div class="controls">
-    <div></div>
-    <div class="button" id="up">↑</div>
-    <div></div>
-    <div class="button" id="left">←</div>
-    <div></div>
-    <div class="button" id="right">→</div>
-    <div></div>
-    <div class="button" id="down">↓</div>
-    <div></div>
-  </div>
-  <button id="start-btn">Start Game</button>
-  <button id="pause-btn">Pause</button>
-  <button id="withdraw-btn">Withdraw Money</button>
-  <div id="game-over">
-    <h1>Game Over</h1>
-    <div id="game-score"></div>
-    <div id="game-earnings"></div>
-    <button id="restart-btn">Restart</button>
+  <!-- Main Menu -->
+  <div id="main-menu">
+    <h1>Snake Game</h1>
+    <button class="button" id="sign-up-btn">Sign Up</button>
+    <button class="button" id="sign-in-btn">Sign In</button>
   </div>
 
+  <!-- Sign Up Window -->
+  <div class="window" id="sign-up-window">
+    <h2 style="color: black;">Sign Up</h2>
+    <label for="sign-up-name" style="color: black;">Name</label>
+    <input type="text" id="sign-up-name" class="form-input" placeholder="Enter your name">
+    <label for="sign-up-email" style="color: black;">Email</label>
+    <input type="email" id="sign-up-email" class="form-input" placeholder="Enter your email">
+    <label for="sign-up-password" style="color: black;">Password</label>
+    <input type="password" id="sign-up-password" class="form-input" placeholder="Enter your password">
+    <button class="submit-btn" id="sign-up-submit">Submit</button>
+  </div>
+
+  <!-- Sign In Window -->
+  <div class="window" id="sign-in-window">
+    <h2 style="color: black;">Sign In</h2>
+    <label for="sign-in-email" style="color: black;">Email</label>
+    <input type="email" id="sign-in-email" class="form-input" placeholder="Enter your email">
+    <label for="sign-in-password" style="color: black;">Password</label>
+    <input type="password" id="sign-in-password" class="form-input" placeholder="Enter your password">
+    <button class="submit-btn" id="sign-in-submit">Submit</button>
+  </div>
+
+  <!-- JavaScript -->
   <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
-    const scoreElement = document.getElementById("score");
-    const earningsElement = document.getElementById("earnings");
-    const pauseBtn = document.getElementById("pause-btn");
-    const withdrawBtn = document.getElementById("withdraw-btn");
-    const gameOverScreen = document.getElementById("game-over");
-    const gameScoreElement = document.getElementById("game-score");
-    const gameEarningsElement = document.getElementById("game-earnings");
-    const restartBtn = document.getElementById("restart-btn");
-    const startBtn = document.getElementById("start-btn");
-    const buttons = {
-      up: document.getElementById("up"),
-      down: document.getElementById("down"),
-      left: document.getElementById("left"),
-      right: document.getElementById("right"),
-    };
+    const signUpBtn = document.getElementById("sign-up-btn");
+    const signInBtn = document.getElementById("sign-in-btn");
+    const signUpWindow = document.getElementById("sign-up-window");
+    const signInWindow = document.getElementById("sign-in-window");
+    const mainMenu = document.getElementById("main-menu");
 
-    const gridSize = 10; // Reduced size of the snake
-    let snake = [{ x: 150, y: 150 }];
-    let direction = { x: gridSize, y: 0 };
-    let food = { x: 180, y: 180 }; // Reduced size of the food
-    let score = 0;
-    let totalEarnings = 0;
-    let isPaused = false;
-    let isGameStarted = false;
-    let interval;
+    const signUpSubmit = document.getElementById("sign-up-submit");
+    const signInSubmit = document.getElementById("sign-in-submit");
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Open Sign-Up Window
+    signUpBtn.addEventListener("click", () => {
+      mainMenu.style.display = "none";
+      signUpWindow.classList.add("visible");
+    });
 
-      // Draw snake
-      ctx.fillStyle = "lime";
-      snake.forEach(segment => ctx.fillRect(segment.x, segment.y, gridSize, gridSize));
+    // Open Sign-In Window
+    signInBtn.addEventListener("click", () => {
+      mainMenu.style.display = "none";
+      signInWindow.classList.add("visible");
+    });
 
-      // Draw food
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, gridSize, gridSize);
+    // Handle Sign-Up Submit
+    signUpSubmit.addEventListener("click", () => {
+      const name = document.getElementById("sign-up-name").value;
+      const email = document.getElementById("sign-up-email").value;
+      const password = document.getElementById("sign-up-password").value;
 
-      scoreElement.textContent = `Score: ${score}`;
-      earningsElement.textContent = `Earnings: ${totalEarnings}$$`;
-    }
-
-    function moveSnake() {
-      if (isPaused || !isGameStarted) return;
-
-      const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
-
-      // Check collision with walls
-      if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-        endGame();
-        return;
-      }
-
-      // Check collision with itself
-      if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-        endGame();
-        return;
-      }
-
-      snake.unshift(head);
-
-      // Check if the snake eats the food
-      if (head.x === food.x && head.y === food.y) {
-        score++;
-        placeFood();
+      if (name && email && password) {
+        // Send data to Google Sheet
+        alert("Sign-Up Successful! Redirecting to the game...");
+        location.href = "game.html";
       } else {
-        snake.pop();
+        alert("Please fill all fields.");
       }
+    });
 
-      draw();
-    }
+    // Handle Sign-In Submit
+    signInSubmit.addEventListener("click", () => {
+      const email = document.getElementById("sign-in-email").value;
+      const password = document.getElementById("sign-in-password").value;
 
-    function placeFood() {
-      food.x = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
-      food.y = Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize;
-
-      // Ensure food doesn't spawn on the snake
-      if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
-        placeFood();
+      if (email && password) {
+        // Check data with Google Sheet
+        alert("Sign-In Successful! Redirecting to the game...");
+        location.href = "game.html";
+      } else {
+        alert("Invalid email or password.");
       }
-    }
-
-    function endGame() {
-      clearInterval(interval);
-      totalEarnings += score;
-      gameOverScreen.style.display = "flex";
-      gameScoreElement.textContent = `Your Score: ${score}`;
-      gameEarningsElement.textContent = `Total Earnings: ${totalEarnings}$$`;
-      score = 0;
-
-      // Open external link in a new tab
-      window.open("https://convictionfoolishbathroom.com/v41xdg501t?key=f869af5ab119d6a6a2c6b6abf35148cd", "_blank");
-    }
-
-    function restartGame() {
-      snake = [{ x: 150, y: 150 }];
-      direction = { x: gridSize, y: 0 };
-      score = 0;
-      isPaused = false;
-      isGameStarted = true;
-      gameOverScreen.style.display = "none";
-      clearInterval(interval);
-      interval = setInterval(moveSnake, 200);
-      placeFood();
-      draw();
-    }
-
-    function startGame() {
-      isGameStarted = true;
-      interval = setInterval(moveSnake, 200);
-      startBtn.style.display = "none";
-    }
-
-    // Add event listeners
-    buttons.up.addEventListener("click", () => {
-      if (direction.y === 0) direction = { x: 0, y: -gridSize };
     });
-    buttons.down.addEventListener("click", () => {
-      if (direction.y === 0) direction = { x: 0, y: gridSize };
-    });
-    buttons.left.addEventListener("click", () => {
-      if (direction.x === 0) direction = { x: -gridSize, y: 0 };
-    });
-    buttons.right.addEventListener("click", () => {
-      if (direction.x === 0) direction = { x: gridSize, y: 0 };
-    });
-    pauseBtn.addEventListener("click", () => {
-      isPaused = !isPaused;
-      pauseBtn.textContent = isPaused ? "Resume" : "Pause";
-    });
-
-    withdrawBtn.addEventListener("click", () => {
-      // Redirect to withdraw.html
-      window.location.href = "withdraw.html";
-    });
-
-    restartBtn.addEventListener("click", restartGame);
-    startBtn.addEventListener("click", startGame);
   </script>
 </body>
 </html>
