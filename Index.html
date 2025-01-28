@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Snake Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #282c34;
+      color: white;
+    }
+    canvas {
+      border: 3px solid #fff;
+      background: #000;
+    }
+    .controls, .scoreboard {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      justify-items: center;
+    }
+    .button {
+      width: 50px;
+      height: 50px;
+      background: #444;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      color: white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      cursor: pointer;
+    }
+    .button:active {
+      background: #666;
+    }
+    .scoreboard {
+      font-size: 18px;
+    }
+    #game-over {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+    #game-over button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #444;
+      border: 2px solid #fff;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    #game-over button:active {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="400" height="400"></canvas>
+  <div class="scoreboard">
+    <div id="score">Score: 0</div>
+    <div id="earnings">Earnings: 0$$</div>
+  </div>
+  <div class="controls">
+    <div></div>
+    <div class="button" id="up">↑</div>
+    <div></div>
+    <div class="button" id="left">←</div>
+    <div></div>
+    <div class="button" id="right">→</div>
+    <div></div>
+    <div class="button" id="down">↓</div>
+    <div></div>
+  </div>
+  <div id="game-over">
+    <h1>Game Over</h1>
+    <button id="restart-btn">Restart</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const scoreElement = document.getElementById("score");
+    const earningsElement = document.getElementById("earnings");
+    const gameOverScreen = document.getElementById("game-over");
+    const restartBtn = document.getElementById("restart-btn");
+    const buttons = {
+      up: document.getElementById("up"),
+      down: document.getElementById("down"),
+      left: document.getElementById("left"),
+      right: document.getElementById("right"),
+    };
+
+    // Three.js setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas });
+    renderer.setSize(400, 400);
+
+    const gridSize = 20;
+    const snakeSegments = [];
+    const snakePositions = [{ x: 0, z: 0 }];
+    let foodPosition = { x: 5, z: 5 };
+    let direction = { x: 1, z: 0 };
+    let isGameOver = false;
+    let score = 0;
+    let totalEarnings = 0;
+    let speed = 300; // Snake movement speed in milliseconds
+    let lastUpdateTime = 0;
+
+    // Snake body
+    const snakeMaterial = new THREE.MeshBasicMaterial({ color: "green" });
+    function addSnakeSegment(position) {
+      const segment = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), snakeMaterial);
+      segment.position.set(position.x, 0.5, position.z);
+      scene.add(segment);
+      snakeSegments.push(segment);
+    }
+
+    // Initial snake
+    addSnakeSegment(snakePositions[0]);
+
+    // Food
+    const foodMaterial = new THREE.MeshBasicMaterial({ color: "red" });
+    const foodMesh = new THREE.Mesh(new THREE.SphereGeometry(0.5), foodMaterial);
+    foodMesh.position.set(foodPosition.x, 0.5, foodPosition.z);
+    scene.add(foodMesh);
+
+    camera.position.set(0, 20, 20);
+    camera.lookAt(0, 0, 0);
+
+    function placeFood() {
+      foodPosition.x = Math.floor(Math.random() * gridSize - gridSize / 2);
+      foodPosition.z = Math.floor(Math.random() * gridSize - gridSize / 2);
+      foodMesh.position.set(foodPosition.x, 0.5, foodPosition.z);
+    }
+
+    function updateSnake() {
+      if (isGameOver) return;
+
+      const head = snakePositions[0];
+      const newHead = { x: head.x + direction.x, z: head.z + direction.z };
+      snakePositions.unshift(newHead);
+
+      // If snake eats food, increase the score and snake size but don't end the game
+      if (newHead.x === foodPosition.x && newHead.z === foodPosition.z) {
+        score++;
+        totalEarnings += 5;
+        scoreElement.textContent = `Score: ${score}`;
+        earningsElement.textContent = `Earnings: ${totalEarnings}$$`;
+        snakePositions.push(snakePositions[snakePositions.length - 1]);
+        addSnakeSegment(snakePositions[snakePositions.length - 1]);
+        placeFood();
+      } else {
+        snakePositions.pop(); // Remove the tail if the snake doesn't eat food
+      }
+
+      snakeSegments.forEach((segment, index) => {
+        const pos = snakePositions[index];
+        segment.position.set(pos.x, 0.5, pos.z);
+      });
+
+      // Check wall collision
+      if (Math.abs(newHead.x) > gridSize / 2 || Math.abs(newHead.z) > gridSize / 2) {
+        endGame();
+        return;
+      }
+
+      // Check self-collision
+      for (let i = 1; i < snakePositions.length; i++) {
+        if (newHead.x === snakePositions[i].x && newHead.z === snakePositions[i].z) {
+          endGame();
+          return;
+        }
+      }
+    }
+
+    function endGame() {
+      isGameOver = true;
+      gameOverScreen.style.display = "flex";
+    }
+
+    function restartGame() {
+      snakePositions.length = 1;
+      snakeSegments.forEach(segment => scene.remove(segment));
+      snakeSegments.length = 0;
+      addSnakeSegment(snakePositions[0]);
+      direction = { x: 1, z: 0 };
+      score = 0;
+      isGameOver = false;
+      gameOverScreen.style.display = "none";
+      scoreElement.textContent = `Score: 0`;
+      earningsElement.textContent = `Earnings: ${totalEarnings}$$`;
+      placeFood();
+    }
+
+    buttons.up.addEventListener("click", () => direction = { x: 0, z: -1 });
+    buttons.down.addEventListener("click", () => direction = { x: 0, z: 1 });
+    buttons.left.addEventListener("click", () => direction = { x: -1, z: 0 });
+    buttons.right.addEventListener("click", () => direction = { x: 1, z: 0 });
+    restartBtn.addEventListener("click", restartGame);
+
+    function animate(currentTime) {
+      requestAnimationFrame(animate);
+
+      if (!lastUpdateTime || currentTime - lastUpdateTime >= speed) {
+        updateSnake();
+        lastUpdateTime = currentTime;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
