@@ -81,18 +81,6 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Skybox
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      'path/to/skybox_px.jpg',
-      'path/to/skybox_nx.jpg',
-      'path/to/skybox_py.jpg',
-      'path/to/skybox_ny.jpg',
-      'path/to/skybox_pz.jpg',
-      'path/to/skybox_nz.jpg',
-    ]);
-    scene.background = texture;
-
     // Lighting
     const light = new THREE.PointLight(0xffffff, 1);
     light.position.set(0, 20, 20);
@@ -101,9 +89,8 @@
     scene.add(ambientLight);
 
     // Ground
-    const groundTexture = new THREE.TextureLoader().load('path/to/ground_texture.jpg');
     const groundGeometry = new THREE.PlaneGeometry(40, 40);
-    const groundMaterial = new THREE.MeshStandardMaterial({ map: groundTexture });
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     scene.add(ground);
@@ -112,11 +99,9 @@
     const snakeSegments = [];
     const segmentGeometry = new THREE.SphereGeometry(0.5, 16, 16);
     const segmentMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const headMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 
-    function addSnakeSegment(position, isHead = false) {
-      const material = isHead ? headMaterial : segmentMaterial;
-      const segment = new THREE.Mesh(segmentGeometry, material);
+    function addSnakeSegment(position) {
+      const segment = new THREE.Mesh(segmentGeometry, segmentMaterial);
       segment.position.set(position.x, 0.5, position.z);
       scene.add(segment);
       snakeSegments.push(segment);
@@ -194,7 +179,7 @@
 
       snakeSegments.forEach(segment => scene.remove(segment));
       snakeSegments.length = 0;
-      addSnakeSegment(snakePositions[0], true); // Mark first segment as head
+      addSnakeSegment(snakePositions[0]);
       placeFood();
 
       document.getElementById("start-btn").style.display = "none";
@@ -228,4 +213,21 @@
       if (direction.z === 0) direction = { x: 0, z: -1 };
     });
     document.getElementById("down").addEventListener("click", () => {
-      if (direction.z === 0) direction = { x: 0, z: [43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/okaeli/docsify-demo/tree/33909b4111a5aa9f430badfdbcef0330d58d989e/learn-css%2FCSS%E6%80%BB%E7%BB%93%2FCSS%E6%95%88%E6%9E%9C%E5%B1%9E%E6%80%A7%2F3D-transform.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Simonpeters98/sprintX/tree/622b7975da952d1204d4057e21f2df29e6931c8e/three.js%20Crash%20Course%2FwireframeClick.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/tmkelly28/three-experiments/tree/7ca82a37aae6860ef85483c818d700ce8176c247/worlds%2Fapp%2Findex.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")
+      if (direction.z === 0) direction = { x: 0, z: 1 };
+    });
+    document.getElementById("left").addEventListener("click", () => {
+      if (direction.x === 0) direction = { x: -1, z: 0 };
+    });
+    document.getElementById("right").addEventListener("click", () => {
+      if (direction.x === 0) direction = { x: 1, z: 0 };
+    });
+
+    // Set camera position
+    camera.position.set(0, 25, 25);
+    camera.lookAt(0, 0, 0);
+
+    // Initial render
+    renderer.render(scene, camera);
+  </script>
+</body>
+</html>
